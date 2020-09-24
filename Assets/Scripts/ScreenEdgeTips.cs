@@ -54,10 +54,10 @@ public class ScreenEdgeTips : MonoBehaviour
     //点是否在屏幕内
     private bool IsInScreen(Vector2 pos)
     {
-        if (pos.x <= screenLines[1].point1.x
-            || pos.x >= screenLines[0].point2.x
-            || pos.y <= screenLines[0].point1.y
-            || pos.y >= screenLines[3].point2.y)
+        if (pos.x >= screenLines[0].point1.x
+            && pos.x <= screenLines[0].point2.x
+            && pos.y >= screenLines[3].point1.y
+            && pos.y <= screenLines[0].point2.y)
         {
             return true;
         }
@@ -74,7 +74,6 @@ public class ScreenEdgeTips : MonoBehaviour
         return Vector2.zero;
     }
 
-
     /// <summary>
     /// 世界坐标转ugui坐标
     /// </summary>
@@ -88,19 +87,6 @@ public class ScreenEdgeTips : MonoBehaviour
         return uiPos;
     }
 
-    private bool IsInMainCameraView(Transform tran)
-    {
-        Transform camTransform = mainCamera.transform;
-        Vector2 viewPos = mainCamera.WorldToViewportPoint(tran.position);
-        Vector3 dir = (tran.position - camTransform.position).normalized;
-        float dot = Vector3.Dot(camTransform.forward, dir);//判断物体是否在相机前面
-
-        if (dot > 0 && viewPos.x >= 0 && viewPos.x <= 1 && viewPos.y >= 0 && viewPos.y <= 1)
-            return true;
-        else
-            return false;
-    }
-
     private void UpdateRotation()
     {
         Vector3 playerForward = new Vector3(fromHero.transform.forward.x, 0, fromHero.transform.forward.z);
@@ -112,16 +98,18 @@ public class ScreenEdgeTips : MonoBehaviour
 
     private void UpdatePosition()
     {
-        if (IsInMainCameraView(toHero.transform) && false)
+        Vector2 toPos = WorldToUGUIPosition(toHero.transform.position);
+        if (IsInScreen(toPos))
         {
-            Vector2 toPos = WorldToUGUIPosition(toHero.transform.position);
             rectTransform.anchoredPosition = toPos;//ui的绝对布局
+            Debug.Log(rectTransform.anchoredPosition);
         }
         else
         {
             Vector2 intersecPos = new Vector2();
             Vector2 fromPos = WorldToUGUIPosition(fromHero.transform.position);
-            Line2D line = new Line2D(fromPos, transform.up * 5000);
+            Line2D line = new Line2D(fromPos, toPos);
+            // Line2D line = new Line2D(fromPos, transform.up * 5000);
             foreach (Line2D l in screenLines)
             {
                 if (line.Intersection(l, out intersecPos) == Line2D.CROSS)
