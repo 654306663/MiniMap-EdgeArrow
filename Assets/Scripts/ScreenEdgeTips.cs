@@ -81,8 +81,13 @@ public class ScreenEdgeTips : MonoBehaviour
     /// <returns></returns>
     private Vector2 WorldToUGUIPosition(Vector3 worldPos)
     {
-        Vector2 world2ScreenPos = mainCamera.WorldToScreenPoint(worldPos);
-        Vector2 uiPos = new Vector2();
+        Vector3 world2ScreenPos = mainCamera.WorldToScreenPoint(worldPos);
+        if (world2ScreenPos.z < 0)
+        {
+            world2ScreenPos.x = -world2ScreenPos.x;
+            world2ScreenPos.y = -world2ScreenPos.y;
+        }
+        Vector2 uiPos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(directContainer, world2ScreenPos, uiCamera, out uiPos);
         return uiPos;
     }
@@ -102,7 +107,6 @@ public class ScreenEdgeTips : MonoBehaviour
         if (IsInScreen(toPos))
         {
             rectTransform.anchoredPosition = toPos;//ui的绝对布局
-            Debug.Log(rectTransform.anchoredPosition);
         }
         else
         {
